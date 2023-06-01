@@ -203,7 +203,14 @@ public class Sistema implements IObligatorio {
 
     @Override
     public Retorno productosParaEntregar() {
-       return  new Retorno(Retorno.Resultado.NO_IMPLEMENTADA);
+       var nodoColaPedidos = colaPedidos.GetPrimerNodo();
+       while(nodoColaPedidos != null){
+           if(nodoColaPedidos.valor.getEstaListoParaEntregar())
+               System.out.println(nodoColaPedidos.valor.toString());
+           
+           nodoColaPedidos = nodoColaPedidos.siguiente;
+       }
+       return new Retorno(Retorno.Resultado.OK);
     }
 
     @Override
