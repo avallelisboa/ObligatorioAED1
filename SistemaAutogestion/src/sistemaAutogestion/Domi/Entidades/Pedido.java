@@ -8,18 +8,21 @@ public class Pedido implements Comparable{
     private int nroPedido;
     private Cliente cliente;
     private boolean estaCerrado;
+    private boolean estaListoParaEntregar;
     private Pila<Producto> productos;
     private int unidades;
 
     public Pedido(int nroP) {
         this.nroPedido = nroP;
         this.estaCerrado = false;
+        this.estaListoParaEntregar = false;
         this.productos = new Pila<Producto>();
         this.unidades = 0;
     }
     public Pedido(int nroP, Cliente cliente) {
         this.nroPedido = nroP;
         this.estaCerrado = false;
+        this.estaListoParaEntregar = false;
         this.cliente = cliente;
         this.productos = new Pila<Producto>();
         this.unidades = 0;
@@ -45,6 +48,13 @@ public class Pedido implements Comparable{
     }
     public void cerrarPedido(){
         estaCerrado = true;
+    }
+    
+    public boolean getEstaListoParaEntregar(){
+        return estaListoParaEntregar;
+    }
+    public void setListoParaEntregar(){
+        estaListoParaEntregar = true;
     }
     
     public int getUnidades() {

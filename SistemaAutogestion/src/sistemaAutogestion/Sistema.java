@@ -58,7 +58,7 @@ public class Sistema implements IObligatorio {
 
     @Override
     public Retorno agregarProducto(String nombre, String descripcion) {
-      int nroProducto = listaProductos.getCantidad();
+      int nroProducto = listaProductos.getCantidad() + 1;
       Producto p= new Producto(nombre,descripcion);
       var resultado= ProductoValidacion.esValido(p, listaProductos);
       if(resultado.resultado.equals(Retorno.Resultado.OK) ){
@@ -81,7 +81,8 @@ public class Sistema implements IObligatorio {
     public Retorno altaStockProducto(String nroProducto, int unidades) {
         Retorno result = ProductoValidacion.esValidaElAltaDeStock(unidades,Integer.parseInt(nroProducto),listaProductos);
         if(result.resultado.equals(Retorno.Resultado.OK)){
-            
+            Producto p = listaProductos.obtenerPorValor(new Producto(Integer.parseInt(nroProducto))).valor;
+            p.agregarStock(unidades);
         }
         return result;
     }
@@ -90,7 +91,10 @@ public class Sistema implements IObligatorio {
     public Retorno agregarProductoAPedido(String ciCliente, int nroProducto, int unidades) {
         Retorno result = ProductoValidacion.EsValidoAgregarProductoAPedido(ciCliente, nroProducto, unidades, listaClientes, listaProductos, _maxUnidadesDePedido);
         if(result.resultado.equals(Retorno.Resultado.OK)){
-            
+            Cliente cliente = listaClientes.obtenerPorValor(new Cliente(ciCliente)).valor;
+            Pedido pedido = cliente.getPedidos().mirar();
+            Producto producto = listaProductos.obtenerPorValor(new Producto(nroProducto)).valor;
+            pedido.agregarProducto(producto);
         }
         return result;
     }
@@ -98,7 +102,11 @@ public class Sistema implements IObligatorio {
     public Retorno aperturaDePedido(String ciCliente) {
         Retorno result = ProductoValidacion.esValidaAperturaNuevoPedido(ciCliente, listaClientes);
         if(result.resultado.equals(Retorno.Resultado.OK)){
-            
+            int nroPedido = colaPedidos.getCantidad() + 1;
+            Cliente cliente = listaClientes.obtenerPorValor(new Cliente(ciCliente)).valor;
+            Pedido pedido = new Pedido(nroPedido,cliente);
+            cliente.agregarPedido(pedido);
+            colaPedidos.agregar(pedido);
         }
         return result;
     }
@@ -107,7 +115,9 @@ public class Sistema implements IObligatorio {
     public Retorno deshacerPedido(String ciCliente, int cantAccionesDeshacer) {
         Retorno result = ProductoValidacion.EsValidoDeshacerAgregadoProductos(ciCliente, cantAccionesDeshacer, listaClientes);
         if(result.resultado.equals(Retorno.Resultado.OK)){
-            
+            Cliente cliente = listaClientes.obtenerPorValor(new Cliente(ciCliente)).valor;
+            Pedido pedido = cliente.getPedidos().mirar();
+            pedido.quitarNProductos(cantAccionesDeshacer);
         }
         return result;
     }
@@ -116,7 +126,9 @@ public class Sistema implements IObligatorio {
     public Retorno cerrarPedido(String ciCliente) {
         Retorno result = ProductoValidacion.EsValidoCerrarPedido(ciCliente, listaClientes);
         if(result.resultado.equals(Retorno.Resultado.OK)){
-            
+            Cliente cliente = listaClientes.obtenerPorValor(new Cliente(ciCliente)).valor;
+            Pedido pedido = cliente.getPedidos().mirar();
+            pedido.cerrarPedido();
         }
         return result;
     }
@@ -125,7 +137,14 @@ public class Sistema implements IObligatorio {
     public Retorno procesarPedido(int cantPedidos) {
         Retorno result = ProductoValidacion.EsValidoTomarPedidosParaProcesamiento(cantPedidos, colaPedidos);
         if(result.resultado.equals(Retorno.Resultado.OK)){
-            
+            int cantProcesados = 0;
+            var nodoPedido = colaPedidos.GetPrimerNodo();
+            while(cantProcesados < cantPedidos && nodoPedido != null){
+                nodoPedido.valor.setListoParaEntregar();
+                
+                cantProcesados++;
+                nodoPedido = nodoPedido.siguiente;
+            }
         }
         return result;
     }
